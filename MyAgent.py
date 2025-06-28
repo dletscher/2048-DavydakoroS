@@ -116,7 +116,24 @@ class Player(BasePlayer):
 			if i < 12 and v == board[i + 4]:
 				merge += 1
 
-		return (state.getScore() + empty * 100 + max_in_corner * 1000 + merge * 50)
+		board = state._board
+		b = [board[i:i+4] for i in range(0, 16, 4)]
+		
+		weights = [[6, 5, 4, 3], [5, 4, 3, 2], [4, 3, 2, 1], [3, 2, 1, 0]]
+		gradient = 0
+		for r in range(4):
+			for c in range(4):
+				gradient += (2 ** b[r][c]) * weights[r][c]
+
+		smooth = 0
+		for r in range(4):
+			for c in range(3):
+				smooth -= abs(b[r][c] - b[r][c+1])
+		for r in range(3):
+			for c in range(4):
+				smooth -= abs(b[r][c] - b[r+1][c])
+				
+		return (state.getScore() + empty * 100 + max_in_corner * 1000 + merge * 50 + gradient + smooth * 10)
 		
 	def moveOrder(self, state):
 		return state.actions()
