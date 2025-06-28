@@ -98,7 +98,25 @@ class Player(BasePlayer):
 		return best
 
 	def heuristic(self, state):
-		return state.getScore()
+		board = state._board
+
+		empty = board.count(0)
+
+		max_tile = max(board)
+		corners = [board[0], board[3], board[12], board[15]]
+		max_in_corner = 1 if max_tile in corners else 0
+		
+
+		merge = 0
+		for i, v in enumerate(board):
+			if v == 0:
+				continue
+			if (i % 4) != 3 and v == board[i + 1]:
+				merge += 1
+			if i < 12 and v == board[i + 4]:
+				merge += 1
+
+		return (state.getScore() + empty * 100 + max_in_corner * 1000 + merge * 50)
 		
 	def moveOrder(self, state):
 		return state.actions()
